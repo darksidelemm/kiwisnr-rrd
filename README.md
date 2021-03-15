@@ -1,2 +1,3 @@
-# kiwisnr-rrd
-KiwiSDR RRD SNR Plots
+# KiwiSDR SNR Monitoring Utilities
+
+
