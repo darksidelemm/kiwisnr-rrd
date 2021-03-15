@@ -29,7 +29,7 @@ import rrdtool
 
 parser = OptionParser()
 parser.add_option("-s", "--server", type=str,
-                  help="server name", dest="server", default='192.168.0.164')
+                  help="server name", dest="server", default='192.168.88.200')
 parser.add_option("-t", "--timestep", type=int,
                   help="Expected timestep between samples", dest="step", default=300)
 parser.add_option("-z", "--zoom", type=int,

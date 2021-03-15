@@ -32,7 +32,7 @@ parser = OptionParser()
 #parser.add_option("-f", "--file", dest="filename", type=str,
 #                  help="write waterfall data to binary FILE", metavar="FILE")
 parser.add_option("-s", "--server", type=str,
-                  help="server name", dest="server", default='192.168.0.164')
+                  help="server name", dest="server", default='192.168.88.200')
 parser.add_option("-p", "--port", type=int,
                   help="port number", dest="port", default=8073)
 parser.add_option("-l", "--length", type=int,
@@ -181,7 +181,7 @@ except Exception as e:
 avg_wf = np.mean(wf_data, axis=0) # average over time
 
 p95 = np.percentile(avg_wf, 95)
-median = np.percentile(avg_wf, 5)
+median = np.percentile(avg_wf, 50)
 
 print("Average SNR computation...")
 print("Waterfall with %d bins: median= %f dB, p95= %f dB - SNR= %f rbw= %f kHz" % (bins, median, p95,p95-median, rbw))
