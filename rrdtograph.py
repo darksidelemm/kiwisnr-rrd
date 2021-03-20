@@ -78,7 +78,7 @@ monthstep = 7 * weekstep  #Monthly graph stepsize
 
 #Prepare graph
 #Current date/time/midnight/sunset/sunrise
-ct = datetime.now()
+ct = datetime.utcnow()
 ct = ct.strftime("%Y-%m-%d %H:%M")
 print("Preparing graphs: ",ct)
 #Calc epoch of last midnight - need correction for local time ( - 1 hour)
@@ -106,12 +106,12 @@ for sched in ['Daily' , 'Weekly', 'Monthly']:
     elif sched == 'Daily':
         period = "d"
         per = ["COMMENT:Last SNR\: ",
-              "GPRINT:snr_last:%2.1lf dB",
-              f"VRULE:{ss}#00008b",
-              "COMMENT:Blue bar\:Sunset",
-              f"VRULE:{mn}#0000FF:dashes",
-              f"VRULE:{sr}#FF4500",
-              "COMMENT:Red bar\:Sunrise"]
+              "GPRINT:snr_last:%2.1lf dB",]
+              #f"VRULE:{ss}#00008b",
+              #"COMMENT:Blue bar\:Sunset",
+              #f"VRULE:{mn}#0000FF:dashes",
+              #f"VRULE:{sr}#FF4500",
+              #"COMMENT:Red bar\:Sunrise"]
     elif sched == 'Monthly':
         period = "m"
         per = ["COMMENT:\rAverage SNR\: ",
@@ -122,15 +122,15 @@ for sched in ['Daily' , 'Weekly', 'Monthly']:
               "GPRINT:snr_min:%2.1lf dB"]
     gr = ["--start", "-1%s" %(period),         #Start -1d / - 1w / -1m
          "--vertical-label=Signal levels (dB)",
-         "--right-axis=0.5:50",               #Define right axis
+         "--right-axis=0.5:60",               #Define right axis
          "--right-axis-label=SNR (dB)",
          "--upper-limit=-40",
          "--lower-limit=-120",
-         f"--watermark=la3rk.dyndns.org - {ct}",
+         f"--watermark=areg.org.au - {ct}",
          "--width=500",
          "--height=300",
          f"--title={sched} {host}\rFrom: {int(offset_khz)} to: {int(offset_khz + span)} kHz",
-         "HRULE:-100#000000",                      #-100 dB ref line
+         #"HRULE:-100#000000",                      #-100 dB ref line
          "DEF:m1_num=" + snrfile + ":p95:AVERAGE",
          "DEF:m2_num=" + snrfile + ":median:AVERAGE",
          "DEF:m3_num=" + snrfile + ":snr:AVERAGE",
@@ -140,7 +140,7 @@ for sched in ['Daily' , 'Weekly', 'Monthly']:
          "VDEF:snr_avg=m3_num,AVERAGE",
          "VDEF:snr_max=m4_num,MAXIMUM",
          "VDEF:snr_min=m5_num,MINIMUM",
-         "CDEF:m3_shifted=m3_num,2,*,100,-",       #Shift SNR to right axis
+         "CDEF:m3_shifted=m3_num,2,*,120,-",       #Shift SNR to right axis
          #f"CDEF:eve=m3_shifted,60,MAXNAN,{ss},TIME,LE,*",  #Prepare area for night
          #f"CDEF:mrn=m3_shifted,60,MAXNAN,{sr},TIME,GE,*",
          #f"CDEF:night=eve,mrn,MAX,120,-",

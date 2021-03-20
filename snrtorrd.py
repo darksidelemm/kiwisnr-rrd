@@ -98,9 +98,9 @@ if not snrpath.is_file():
         #"--source", snrfile,  #snrfile, remove comment and not if recreating
         #"--start", "now",     #start time, uses default now - 10s
         #"--step", "0.3",                    #timestep, adjust crontab accordingly
-        f"DS:median:GAUGE:{step*10}:-150:-40",  #Expect readings every 10 step
-        f"DS:p95:GAUGE:{step*10}:-150:-40", 
-        f"DS:snr:GAUGE:{step*10}:0:40",
+        f"DS:median:GAUGE:{step*10}:-150:-30",  #Expect readings every 10 step
+        f"DS:p95:GAUGE:{step*10}:-150:-30", 
+        f"DS:snr:GAUGE:{step*10}:0:60",
         f"RRA:AVERAGE:0.5:5m:1d",   #Daily average
         f"RRA:AVERAGE:0.5:30m:1w",  #Weekly average
         f"RRA:AVERAGE:0.5:3h:30d",  #Monthly average
