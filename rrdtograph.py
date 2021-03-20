@@ -36,6 +36,8 @@ parser.add_option("-z", "--zoom", type=int,
                   help="zoom factor", dest="zoom", default=0)
 parser.add_option("-o", "--offset", type=int,
                   help="start frequency in kHz", dest="start", default=0)
+parser.add_option("--title", type=str,
+                  help="KiwiSDR Name", dest="title", default="KiwiSDR")
 parser.add_option("-v", "--verbose", type=int,
                   help="whether to print progress and debug info", dest="verbosity", default=0)
 
@@ -59,6 +61,7 @@ else:
 	span = int(full_span)
 
 bins = 1024
+rbw = span/bins
 if offset_khz>0:
 	offset = (offset_khz+100)/(full_span/bins)*2**(4)*1000.
 	offset = max(0, offset)
@@ -121,7 +124,7 @@ for sched in ['Daily' , 'Weekly', 'Monthly']:
               "COMMENT:Min SNR\: ",
               "GPRINT:snr_min:%2.1lf dB"]
     gr = ["--start", "-1%s" %(period),         #Start -1d / - 1w / -1m
-         "--vertical-label=Signal levels (dB)",
+         "--vertical-label=Signal levels (dBm/bin)",
          "--right-axis=0.5:60",               #Define right axis
          "--right-axis-label=SNR (dB)",
          "--upper-limit=-40",
@@ -129,7 +132,7 @@ for sched in ['Daily' , 'Weekly', 'Monthly']:
          f"--watermark=areg.org.au - {ct}",
          "--width=500",
          "--height=300",
-         f"--title={sched} {host}\rFrom: {int(offset_khz)} to: {int(offset_khz + span)} kHz",
+         f"--title={options['title']}, {sched} from: {int(offset_khz)} - {int(offset_khz + span)} kHz, {rbw:.2f} kHz RBW",
          #"HRULE:-100#000000",                      #-100 dB ref line
          "DEF:m1_num=" + snrfile + ":p95:AVERAGE",
          "DEF:m2_num=" + snrfile + ":median:AVERAGE",
@@ -145,8 +148,8 @@ for sched in ['Daily' , 'Weekly', 'Monthly']:
          #f"CDEF:mrn=m3_shifted,60,MAXNAN,{sr},TIME,GE,*",
          #f"CDEF:night=eve,mrn,MAX,120,-",
          #"AREA:night#d3d3d3:Night",
-         "LINE1:m1_num#0000FF:Peak level",
-         "LINE1:m2_num#00FF00:Average level",
+         "LINE1:m1_num#0000FF:95th Percentile",
+         "LINE1:m2_num#00FF00:Median level",
          "LINE2:m3_shifted#FF0000:SNR"]
     rrdtool.graph(f"{rrdname}-{sched}.png",gr+per)
 
