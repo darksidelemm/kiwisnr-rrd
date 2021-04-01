@@ -8,7 +8,8 @@ Original Author: Olaf - LA3RK
 import numpy as np
 import struct
 
-import array
+
+import datetime
 import logging
 import socket
 import struct
@@ -45,6 +46,8 @@ parser.add_option("-o", "--offset", type=int,
                   help="start frequency in kHz", dest="start", default=0)
 parser.add_option("-v", "--verbose", type=int,
                   help="whether to print progress and debug info", dest="verbosity", default=0)
+parser.add_option("--spectra", type=str,
+                  help="Spectra Output File (csv)", dest="spectra", default='none')
 
 options = vars(parser.parse_args()[0])
 
@@ -180,6 +183,15 @@ except Exception as e:
 
 avg_wf = np.mean(wf_data, axis=0) # average over time
 
+if options['spectra'] != 'none':
+    _output = datetime.utcnow().isoformat() + "Z"
+    for _data in avg_wf:
+        _output += "," + "%.1f" % _data
+    
+    _outspectra = open(options['spectra'],'a')
+    _outspectra.write(_output+"\n")
+    _outspectra.close()
+
 p95 = np.percentile(avg_wf, 95)
 median = np.percentile(avg_wf, 50)
 
@@ -188,10 +200,7 @@ print("Waterfall with %d bins: median= %f dB, p95= %f dB - SNR= %f rbw= %f kHz" 
 snr = p95-median
 data = format("N:%3.1f:%3.1f:%2.2f" % (median,p95,p95-median))
 
-#Do not update if Kiwi seems to be disconnected from antenna, median below -105 dB and p95 less than -95 dB
-#if median < -105 and p95 < -95:
-#	print("No update, antenna seems disconnected")
-#	sys.exit()
+
 try:	
     rrdtool.update(snrfile, data)
 except rrdtool.error as e:
