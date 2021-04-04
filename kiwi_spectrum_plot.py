@@ -101,6 +101,7 @@ def main():
     fig.autofmt_xdate()
     ax.xaxis_date()
     ax.xaxis.set_major_formatter(dtFmt)
+    ax.xaxis.set_major_locator(mdates.MinuteLocator(interval=360))
     ax.set_aspect(0.05)
     plt.title(f"{args.title} Spectrograph")
     fig.colorbar(spec, ax=ax, shrink=0.8, label="Power (dBm / bin)")
