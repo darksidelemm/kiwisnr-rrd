@@ -35,9 +35,9 @@ def main():
     # Read command-line arguments
     parser = argparse.ArgumentParser(description="KiwiSDR Spectrum Plotter", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('filename', type=str, help="KiwiSDR Spectrum Log File (CSV)")
-    parser.add_argument("--hours", type=int, default=48, help="How many hours to plot. (Defaut: 48 hrs)")
-    parser.add_argument("--cmap_min", type=float, default=-110, help="Colormap Minimum Value (Default: -110 dBm)")
-    parser.add_argument("--cmap_max", type=float, default=-30, help="Colormap Maximum Value (Default: -30 dBm)")
+    parser.add_argument("--hours", type=int, default=72, help="How many hours to plot.")
+    parser.add_argument("--cmap_min", type=float, default=-110, help="Colormap Minimum Value (dBm)")
+    parser.add_argument("--cmap_max", type=float, default=-30, help="Colormap Maximum Value (dBm)")
     parser.add_argument("--clip", action="store_true", default=False, help="Clip file to the hour limit specified with --hours")
     parser.add_argument('--spectrograph', type=str, default=None, help="Save Spectrograph to this file.")
     parser.add_argument('--rxpower', type=str, default=None, help="Save RX Power Plot to this file.")
