@@ -101,14 +101,13 @@ def main():
     fig.autofmt_xdate()
     ax.xaxis_date()
     ax.xaxis.set_major_formatter(dtFmt)
-    ax.set_aspect(0.03)
+    ax.set_aspect(0.05)
     plt.title(f"{args.title} Spectrograph")
     fig.colorbar(spec, ax=ax, shrink=0.8, label="Power (dBm / bin)")
 
     if args.spectrograph:
         plt.savefig(args.spectrograph, dpi=300, bbox_inches='tight')
 
-    #plt.show()
 
 
 if __name__ == "__main__":
