@@ -95,7 +95,7 @@ def main():
 
     x_lims = mdates.date2num(times)
 
-    spec = ax.imshow(np.flipud(spectra.T), cmap=plt.cm.turbo, vmin=args.cmap_min, vmax=args.cmap_max, extent=[x_lims[0],x_lims[-1],freq_lower,freq_upper])
+    spec = ax.imshow(np.flipud(spectra.T), cmap=plt.cm.jet, vmin=args.cmap_min, vmax=args.cmap_max, extent=[x_lims[0],x_lims[-1],freq_lower,freq_upper])
     ax.set_ylabel("Frequency (MHz)")
     ax.set_xlabel("Time (UTC)")
     fig.autofmt_xdate()
