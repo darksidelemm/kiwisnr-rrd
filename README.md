@@ -115,3 +115,9 @@ This script could then be run in a cronjob with an entry like:
 */10 * * * * /home/user/run_snr.sh
 ```
 
+## Docker
+
+```sh
+docker build -t kiwisdr-rrd:latest .
+docker run --rm -v $PWD/output:/output -v $PWD/data:/data  kiwisdr-rrd:latest host.name 8073 "pretty name" password
+```
