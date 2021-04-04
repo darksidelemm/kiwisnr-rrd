@@ -5,9 +5,13 @@ Use snrgraph to prepare graphs
 
 Original Author: Olaf - LA3RK
 """
+
+# Yeah this is all a bit of a mess.
+
 import numpy as np
 import struct
 
+from spectra_helpers import *
 
 import datetime
 import logging
@@ -36,6 +40,8 @@ parser.add_option("-s", "--server", type=str,
                   help="server name", dest="server", default='192.168.88.200')
 parser.add_option("-p", "--port", type=int,
                   help="port number", dest="port", default=8073)
+parser.add_option("-a", "--password", type=str,
+                  help="server password", dest="password", default='NONE')
 parser.add_option("-l", "--length", type=int,
                   help="how many samples to draw from the server", dest="length", default=100)
 parser.add_option("-t", "--timestep", type=int,
@@ -83,7 +89,9 @@ else:
 	offset = 0
 
 center_freq = int(span/2+offset_khz)
-print("Start/End: %.2f / %.2f kHz" % (center_freq - span/2, center_freq + span/2))
+lower_freq = center_freq - span/2
+upper_freq = center_freq + span/2
+print("Start/End: %.2f / %.2f kHz" % (lower_freq, upper_freq))
 snrname = f"{host}_{int(center_freq - span/2)}_{int(center_freq + span/2)}"
 snrfile = snrname + ".rrd"
 print("Current rrd file: ", snrfile)
@@ -122,6 +130,7 @@ print("Trying to contact server...")
 try:
     mysocket = socket.socket()
     mysocket.connect((host, port))
+    mysocket.settimeout(1)
 except:
     print("Failed to connect....exit")
     exit()   
@@ -143,7 +152,11 @@ print("Data stream active...")
 
 # send a sequence of messages to the server, hardcoded for now
 # max wf speed, no compression
-msg_list = ['SET auth t=kiwi p=', 'SET zoom=%d start=%d'%(zoom,offset),\
+_msg_1 = 'SET auth t=kiwi p='
+if options['password'] != 'NONE':
+    _msg_1 += options['password']
+
+msg_list = [_msg_1, 'SET zoom=%d start=%d'%(zoom,offset),\
 'SET maxdb=0 mindb=-100', 'SET wf_speed=4', 'SET wf_comp=0']
 for msg in msg_list:
     mystream.send_message(msg)
@@ -156,7 +169,12 @@ binary_wf_list = []
 time = 0
 while time<length:
     # receive one msg from server
-    tmp = mystream.receive_message()
+    try:
+        tmp = mystream.receive_message()
+    except:
+        print("Timeout waiting for data!")
+        break
+
     if str.encode("W/F") in tmp: # this is one waterfall line
         tmp = tmp[16:] # remove some header from each msg
         if options['verbosity']:
@@ -168,12 +186,21 @@ while time<length:
         #wf_data[time, :] = spectrum-255 # mirror dBs
         wf_data[time, :] = spectrum
         wf_data[time, :] = -(255 - wf_data[time, :])  # dBm
-        wf_data[time, :] = wf_data[time, :] - 13  # typical Kiwi wf cal
+        wf_data[time, :] = wf_data[time, :] - 13  # typical Kiwi wf cal - NEED TO REVISIT THIS
         time += 1
     else: 
         # this is chatter between client and server
-        #print tmp
         pass
+
+if time < length:
+    print("Did not gather all required samples, abandoning.")
+
+    # Append dummy entry
+    if options['spectra'] != 'none':
+        append_dummy_entry(options['spectra'],lower_freq, upper_freq, bins)
+    
+    sys.exit(1)
+
 
 try:
     mystream.close_connection(mod_pywebsocket.common.STATUS_GOING_AWAY)
@@ -184,13 +211,14 @@ except Exception as e:
 avg_wf = np.mean(wf_data, axis=0) # average over time
 
 if options['spectra'] != 'none':
-    _output = datetime.utcnow().isoformat() + "Z"
-    for _data in avg_wf:
-        _output += "," + "%.1f" % _data
+    append_to_file(options['spectra'],lower_freq, upper_freq, bins, avg_wf)
+    # _output = datetime.utcnow().isoformat() + "Z"
+    # for _data in avg_wf:
+    #     _output += "," + "%.1f" % _data
     
-    _outspectra = open(options['spectra'],'a')
-    _outspectra.write(_output+"\n")
-    _outspectra.close()
+    # _outspectra = open(options['spectra'],'a')
+    # _outspectra.write(_output+"\n")
+    # _outspectra.close()
 
 p95 = np.percentile(avg_wf, 95)
 median = np.percentile(avg_wf, 50)
