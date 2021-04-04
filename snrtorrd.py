@@ -46,6 +46,8 @@ parser.add_option("-l", "--length", type=int,
                   help="how many samples to draw from the server", dest="length", default=100)
 parser.add_option("-t", "--timestep", type=int,
                   help="Expected timestep between samples", dest="step", default=300)
+parser.add_option("--timeout", type=float,
+                  help="Connection Timeout", dest="timeout", default=1)
 parser.add_option("-z", "--zoom", type=int,
                   help="zoom factor", dest="zoom", default=0)
 parser.add_option("-o", "--offset", type=int,
@@ -130,7 +132,7 @@ print("Trying to contact server...")
 try:
     mysocket = socket.socket()
     mysocket.connect((host, port))
-    mysocket.settimeout(1)
+    mysocket.settimeout(options['timeout'])
 except:
     print("Failed to connect....exit")
     exit()   
