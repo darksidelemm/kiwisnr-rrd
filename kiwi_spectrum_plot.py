@@ -28,7 +28,8 @@ def calculate_total_power(spectra):
     _spectra_mw = 10**(spectra/10)
     _timeseries = np.sum(_spectra_mw, axis=1)
 
-    return 10*np.log10(_timeseries)
+    # Refer README.md for info on the -3 value.
+    return 10*np.log10(_timeseries) - 3
 
 
 def main():
@@ -66,7 +67,7 @@ def main():
         sys.exit(1)
     
     times = _data['time']
-    spectra = _data['spectra']
+    spectra = _data['spectra'] - 3 # Note an additional 3dB calibration on top of the -13 applied in snrtorrd.py
     freq_lower = _data['lower']/1000.0
     freq_upper = _data['upper']/1000.0
 
@@ -83,6 +84,7 @@ def main():
     fig.autofmt_xdate()
     ax.xaxis_date()
     ax.xaxis.set_major_formatter(dtFmt)
+    ax.set_ylim([-60,-10])
     ax.grid()
     plt.title(f"{args.title} RX Power")
 

@@ -34,7 +34,7 @@ Options:
                         start frequency in kHz
   -v VERBOSITY, --verbose=VERBOSITY
                         whether to print progress and debug info
-  --spectra=SPECTRA     Spectra Output File (csv)
+  --spectra=SPECTRA     Spectra Output File (csv). 
 ```
 
 For example to login to a private server, and save out raw spectra data, you would use:
@@ -102,8 +102,10 @@ cd /home/user/kiwisnr-rrd/
 python3 snrtorrd.py -s $HOSTNAME -p $PORT --spectra=kiwisdr_spectra.csv
 # Produce RRD Plots
 python3 rrdtograph.py -s $HOSTNAME --title "My KiwiSDR"
-# Produce Spectrograph and RX Power plots
-python3 kiwi_spectrum_plot.py --hours 72 --spectrograph my_spectro.png --title "My KiwiSDR"  --rxpower my_rxpower.png kiwisdr_spectra.csv
+# Produce Spectrograph Plot
+python3 kiwi_spectrum_plot.py --hours 72 --spectrograph my_spectro.png --title "My KiwiSDR" kiwisdr_spectra.csv
+# Produce RX Power Plot (Note - uses different log file)
+python3 kiwi_spectrum_plot.py --hours 72 --rxpower my_power.png --title "My KiwiSDR" kiwisdr_spectra_peak.csv
 
 # Copy plots to a remote server for display
 scp *.png myserver:~/some/path/
@@ -115,3 +117,15 @@ This script could then be run in a cronjob with an entry like:
 */10 * * * * /home/user/run_snr.sh
 ```
 
+
+## Notes on KiwiSDR Overload Detection & Monitoring
+* snrtorrd.py includes an empirical 'calibration' value of -13 dB: https://github.com/darksidelemm/kiwisnr-rrd/blob/main/snrtorrd.py#L191
+* This is the default s-meter and waterfall calibration set in the KiwiSDR admin interface.
+* This value is about 3dB off for a single 29 kHz waterfall bin. (should be -16 for a single bin to be accurate, at least at max RBW).
+* For the S-meter output, looking at a CW carrier, the s-meter cal is about 5dB out, so a calibration value of -18 dB is better suited for accurate readings in the s-meter display. This will be applied to all the AREG KiwiSDRs, so at least we know the level entering the KiwiSDR. Eventually we will include a calibration out to the antenna feedpoint.
+* These calibrations do not affect the data gathered by snrtorrd.py - the waterfall data supplied via the kiwiclient system does not have any corrections applied.
+
+* An empirical conversion of the total power sum (with a single CW signal injected) is: (-13 dB) + (-3 dB) = total of -16 dB.
+* The ADC overload point appears to be approx -17 dBm at the input of the KiwiSDR. 
+* snrtorrd.py and the kiwi_spectrum_plot.py scripts have been updated to reflect these findings. 
+* To be able to accurately measure the peak power into the receiver, snrtorrd has been updated to save peak waterfall data along with the average data which is used to produce the spectrograph. Peak data is saved to a filename appended with _peak - refer examples above.

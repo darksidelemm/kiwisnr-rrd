@@ -211,9 +211,18 @@ except Exception as e:
     print("exception: %s" % e)
 
 avg_wf = np.mean(wf_data, axis=0) # average over time
+max_wf = np.max(wf_data, axis=0) # Peak values
+
+wf_dbm = 10*np.log10(np.sum(10**(max_wf/10.0))) - 3
+
+print("Power Sum: %.3f dBm (ADC Overload at -17 dBm)" % wf_dbm)
 
 if options['spectra'] != 'none':
     append_to_file(options['spectra'],lower_freq, upper_freq, bins, avg_wf)
+
+    # Save out peak data
+    _max_filename = options['spectra'].split('.')[0] + "_peak." + options['spectra'].split('.')[1]
+    append_to_file(_max_filename,lower_freq, upper_freq, bins, max_wf)
     # _output = datetime.utcnow().isoformat() + "Z"
     # for _data in avg_wf:
     #     _output += "," + "%.1f" % _data
