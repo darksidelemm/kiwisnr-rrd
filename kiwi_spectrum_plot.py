@@ -84,7 +84,8 @@ def main():
     fig.autofmt_xdate()
     ax.xaxis_date()
     ax.xaxis.set_major_formatter(dtFmt)
-    ax.set_ylim([-60,-10])
+    ax.axhline(-17, label="Overload", color='r', linestyle='--')
+    ax.set_ylim([-60,-15])
     ax.grid()
     plt.title(f"{args.title} RX Power")
 
