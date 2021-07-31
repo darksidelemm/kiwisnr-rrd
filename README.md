@@ -129,3 +129,10 @@ This script could then be run in a cronjob with an entry like:
 * The ADC overload point appears to be approx -17 dBm at the input of the KiwiSDR. 
 * snrtorrd.py and the kiwi_spectrum_plot.py scripts have been updated to reflect these findings. 
 * To be able to accurately measure the peak power into the receiver, snrtorrd has been updated to save peak waterfall data along with the average data which is used to produce the spectrograph. Peak data is saved to a filename appended with _peak - refer examples above.
+
+## Docker
+
+```sh
+docker build -t kiwisdr-rrd:latest .
+docker run --rm -v $PWD/output:/output -v $PWD/data:/data  kiwisdr-rrd:latest host.name 8073 "pretty name" password
+```
