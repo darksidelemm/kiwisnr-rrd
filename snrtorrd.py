@@ -135,7 +135,7 @@ try:
     mysocket.settimeout(options['timeout'])
 except:
     print("Failed to connect....exit")
-    exit()   
+    exit(110)   
 print("Socket open...")
 
 uri = '/%d/%s' % (int(time.time()), 'W/F')
