@@ -13,7 +13,7 @@ import logging
 import socket
 import struct
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from suntime import Sun
 import pathlib
 
@@ -81,9 +81,9 @@ monthstep = 7 * weekstep  #Monthly graph stepsize
 
 #Prepare graph
 #Current date/time/midnight/sunset/sunrise
-ct = datetime.utcnow()
-ct = ct.strftime("%Y-%m-%d %H:%M")
-print("Preparing graphs: ",ct)
+ct = datetime.now(timezone.utc)
+ct_str = ct.strftime("%Y-%m-%d %H:%M")
+print("Preparing graphs: ",ct_str)
 #Calc epoch of last midnight - need correction for local time ( - 1 hour)
 lt = rrdtool.last(snrfile)
 print("Last rrdupdate: ",lt)
@@ -100,15 +100,15 @@ for sched in ['Daily' , 'Weekly', 'Monthly']:
     print("Preparing graph: ", snrfile, "-", sched)
     if sched == 'Weekly':
         period = "w"
-        per = ["COMMENT:\rAverage SNR\: ",
+        per = ["COMMENT:\\rAverage SNR\\: ",
               "GPRINT:snr_avg:%2.1lf dB",
-              "COMMENT:Max SNR\: ",
+              "COMMENT:Max SNR\\: ",
               "GPRINT:snr_max:%2.1lf dB",
-              "COMMENT:Min SNR\: ",
+              "COMMENT:Min SNR\\: ",
               "GPRINT:snr_min:%2.1lf dB"]
     elif sched == 'Daily':
         period = "d"
-        per = ["COMMENT:Last SNR\: ",
+        per = ["COMMENT:Last SNR\\: ",
               "GPRINT:snr_last:%2.1lf dB",]
               #f"VRULE:{ss}#00008b",
               #"COMMENT:Blue bar\:Sunset",
@@ -117,11 +117,11 @@ for sched in ['Daily' , 'Weekly', 'Monthly']:
               #"COMMENT:Red bar\:Sunrise"]
     elif sched == 'Monthly':
         period = "m"
-        per = ["COMMENT:\rAverage SNR\: ",
+        per = ["COMMENT:\\rAverage SNR\\: ",
               "GPRINT:snr_avg:%2.1lf dB",
-              "COMMENT:Max SNR\: ",
+              "COMMENT:Max SNR\\: ",
               "GPRINT:snr_max:%2.1lf dB",
-              "COMMENT:Min SNR\: ",
+              "COMMENT:Min SNR\\: ",
               "GPRINT:snr_min:%2.1lf dB"]
     gr = ["--start", "-1%s" %(period),         #Start -1d / - 1w / -1m
          "--vertical-label=Signal levels (dBm/bin)",
@@ -129,7 +129,7 @@ for sched in ['Daily' , 'Weekly', 'Monthly']:
          "--right-axis-label=SNR (dB)",
          "--upper-limit=-40",
          "--lower-limit=-120",
-         f"--watermark=areg.org.au - {ct}",
+         f"--watermark=areg.org.au - {ct_str}",
          "--width=500",
          "--height=300",
          f"--title={options['title']}, {sched} from: {int(offset_khz)} - {int(offset_khz + span)} kHz, {rbw:.2f} kHz RBW",
