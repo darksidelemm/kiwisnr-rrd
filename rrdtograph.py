@@ -82,7 +82,7 @@ monthstep = 7 * weekstep  #Monthly graph stepsize
 #Prepare graph
 #Current date/time/midnight/sunset/sunrise
 ct = datetime.now(timezone.utc)
-ct_str = ct.strftime("%Y-%m-%d %H:%M") #created new variable for string format.
+ct_str = ct.strftime("%Y-%m-%d %H:%M")
 print("Preparing graphs: ",ct_str)
 #Calc epoch of last midnight - need correction for local time ( - 1 hour)
 lt = rrdtool.last(snrfile)
